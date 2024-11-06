@@ -2,21 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
-function Register() {
-    const [formData, setFormData] = useState({ nickname: '', email: '', password: '' });
+function Login() {
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
     const validateForm = () => {
-        const { nickname, email, password } = formData;
-        if (!nickname || !email || !password) {
-            setMessage("All fields are required.");
-            return false;
-        }
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(email)) {
-            setMessage("Please enter a valid email address.");
+        const { email, password } = formData;
+        if (!email || !password) {
+            setMessage("Both fields are required.");
             return false;
         }
         return true;
@@ -29,12 +24,14 @@ function Register() {
         setMessage('');
 
         try {
-            const { data } = await API.post('/auth/register', formData);
-            setMessage(data.message || "User registered successfully!");
-            setTimeout(() => navigate('/login'), 2000); // Redirect to login after 2 seconds
+            const { data } = await API.post('/auth/login', formData);
+            setMessage("Login successful!");
+            localStorage.setItem('userEmail', formData.email);
+            // You can store a token here if returned by the server
+            // localStorage.setItem(a'token', data.token); // example of storing a token
+            setTimeout(() => navigate('/'), 2000); // Redirect to the homepage after 2 seconds
         } catch (error) {
-            console.error("Error:", error);
-            setMessage(error.response?.data?.message || "Registration failed. Please try again.");
+            setMessage(error.response?.data?.message || "Login failed. Please check your credentials and try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -42,15 +39,9 @@ function Register() {
 
     return (
         <div>
-            <h1>Register</h1>
+            <h1>Login</h1>
             {message && <p>{message}</p>}
             <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Nickname"
-                    value={formData.nickname}
-                    onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-                />
                 <input
                     type="email"
                     placeholder="Email"
@@ -64,11 +55,11 @@ function Register() {
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
                 <button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Registering...' : 'Register'}
+                    {isSubmitting ? 'Logging in...' : 'Login'}
                 </button>
             </form>
         </div>
     );
 }
 
-export default Register;
+export default Login;
