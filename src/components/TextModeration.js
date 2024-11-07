@@ -12,10 +12,11 @@ function TextModeration() {
     const [sharedRecordDetails, setSharedRecordDetails] = useState(null);
     const [shareFriendEmail, setShareFriendEmail] = useState(''); // Email of friend to share with
     const [shareHistoryId, setShareHistoryId] = useState(''); // History ID to share
-    const [fetchId, setFetchId] = useState(''); // ID to fetch moderation result
     const [message, setMessage] = useState(''); // For success/error messages
     const [history, setHistory] = useState([]); // Moderation history for the user
-
+    const [sensitivityScore, setSensitivityScore] = useState(null);
+    const [scoreFetchId, setScoreFetchId] = useState(''); // Separate state for scores
+    const [annotationFetchId, setAnnotationFetchId] = useState(''); // Separate state for annotations
     const pdfExportRef = useRef(); // Reference for PDF export
 
     // Submit new text for moderation
@@ -32,13 +33,14 @@ function TextModeration() {
         }
     };
 
-    // Fetch category scores by moderation ID
+    // Fetch category scores and sensitivity score by moderation ID
     const handleFetchScoresById = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await API.get(`/text/score/${fetchId}`);
+            const { data } = await API.get(`/text/score/${scoreFetchId}`);
             console.log('Score data:', data);
             setCategoryScores(data.category_scores);
+            setSensitivityScore(data.sensitivity_score);
         } catch (error) {
             console.error('Error fetching score by ID:', error);
             setMessage("Failed to fetch scores by ID.");
@@ -49,7 +51,7 @@ function TextModeration() {
     const handleFetchAnnotationsById = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await API.get(`/text/annotations/${fetchId}`);
+            const { data } = await API.get(`/text/annotations/${annotationFetchId}`);
             console.log('Annotation data:', data);
             setAnnotations(data);
         } catch (error) {
@@ -138,7 +140,6 @@ function TextModeration() {
     return (
         <div>
             <h1>Text Moderation</h1>
-
             {message && <p>{message}</p>}
 
             {/* Form to submit new text for moderation */}
@@ -160,25 +161,27 @@ function TextModeration() {
             <form onSubmit={handleFetchScoresById}>
                 <input
                     type="text"
-                    value={fetchId}
-                    onChange={(e) => setFetchId(e.target.value)}
+                    value={scoreFetchId}
+                    onChange={(e) => setScoreFetchId(e.target.value)}
                     placeholder="Enter moderation ID to fetch scores"
                     required
                 />
                 <button type="submit">Fetch Scores by ID</button>
             </form>
 
+
             {/* Form to fetch annotations by moderation ID */}
             <form onSubmit={handleFetchAnnotationsById}>
                 <input
                     type="text"
-                    value={fetchId}
-                    onChange={(e) => setFetchId(e.target.value)}
+                    value={annotationFetchId}
+                    onChange={(e) => setAnnotationFetchId(e.target.value)}
                     placeholder="Enter moderation ID to fetch annotations"
                     required
                 />
                 <button type="submit">Fetch Annotations by ID</button>
             </form>
+
 
             {/* Section to display all moderation details and allow PDF export */}
             <div ref={pdfExportRef}>
@@ -188,6 +191,13 @@ function TextModeration() {
                     <div>
                         <h3>Category Scores</h3>
                         {renderCategoryScores(categoryScores)}
+                    </div>
+                )}
+
+                {sensitivityScore !== null && (
+                    <div>
+                        <h3>Sensitivity Score</h3>
+                        <p>{sensitivityScore.toFixed(6)}</p>
                     </div>
                 )}
 

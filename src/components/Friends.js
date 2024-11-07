@@ -20,10 +20,10 @@ function Friends() {
         setLoading(true);
         try {
             const { data } = await API.post('/friends/add', { userEmail, friendEmail });
-            showMessage(data.message || "Friend request sent successfully!");
+            showMessage(data || "Friend request sent successfully!"); // Use data from backend response
             setFriendEmail(''); // Clear the input field
         } catch (error) {
-            showMessage(error.response?.data?.message || "Failed to send friend request.");
+            showMessage(error.response?.data || "Failed to send friend request."); // Display backend error message
         } finally {
             setLoading(false);
         }
@@ -37,7 +37,7 @@ function Friends() {
             setRequests(data);
             showMessage("Friend requests fetched successfully!");
         } catch (error) {
-            showMessage(error.response?.data?.message || "Failed to fetch friend requests.");
+            showMessage(error.response?.data || "Failed to fetch friend requests."); // Display backend error message
         } finally {
             setLoading(false);
         }
@@ -48,11 +48,11 @@ function Friends() {
         setLoading(true);
         try {
             const { data } = await API.post('/friends/accept', { userEmail, friendEmail });
-            showMessage(data.message || "Friend request accepted!");
+            showMessage(data || "Friend request accepted!"); // Use data from backend response
             handleViewFriends(); // Refresh the friend list
             handleViewRequests(); // Refresh the friend requests
         } catch (error) {
-            showMessage(error.response?.data?.message || "Failed to accept friend request.");
+            showMessage(error.response?.data || "Failed to accept friend request."); // Display backend error message
         } finally {
             setLoading(false);
         }
@@ -66,7 +66,7 @@ function Friends() {
             setFriends(data);
             showMessage("Friends list fetched successfully!");
         } catch (error) {
-            showMessage(error.response?.data?.message || "Failed to fetch friends list.");
+            showMessage(error.response?.data || "Failed to fetch friends list."); // Display backend error message
         } finally {
             setLoading(false);
         }
@@ -79,10 +79,10 @@ function Friends() {
             const { data } = await API.delete('/friends/remove', {
                 data: { userEmail, friendEmail }
             });
-            showMessage(data.message || "Friend removed successfully!");
+            showMessage(data || "Friend removed successfully!"); // Use data from backend response
             handleViewFriends(); // Refresh the friend list
         } catch (error) {
-            showMessage(error.response?.data?.message || "Failed to remove friend.");
+            showMessage(error.response?.data || "Failed to remove friend."); // Display backend error message
         } finally {
             setLoading(false);
         }
