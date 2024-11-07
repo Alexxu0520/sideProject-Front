@@ -236,7 +236,20 @@ function TextModeration() {
                 />
                 <button type="submit">Share Record</button>
             </form>
-
+            {/* Fetch and display moderation history */}
+            <button onClick={handleFetchHistory}>Fetch Moderation History</button>
+            {history.length > 0 && (
+                <div>
+                    <h3>Moderation History</h3>
+                    <ul>
+                        {history.map((entry) => (
+                            <li key={entry.history_id}>
+                                {entry.text} (ID: {entry.history_id})
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             {/* Fetch and display all shared records */}
             <button onClick={handleFetchSharedRecords}>Fetch Shared Records</button>
             {sharedRecords.length > 0 && (

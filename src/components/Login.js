@@ -20,17 +20,30 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
+
         setIsSubmitting(true);
         setMessage('');
 
         try {
-            const { data } = await API.post('/auth/login', formData);
-            setMessage("Login successful!");
-            localStorage.setItem('userEmail', formData.email);
-            // You can store a token here if returned by the server
-            // localStorage.setItem(a'token', data.token); // example of storing a token
-            setTimeout(() => navigate('/'), 2000); // Redirect to the homepage after 2 seconds
+            const response = await API.post('/auth/login', formData);
+            console.log('Login response:', response);
+
+            // Handle each specific response message from the backend
+            if (response.data === "Login successful!") {
+                localStorage.setItem('userEmail', formData.email); // Store email if login is successful
+                setMessage("Login successful!");
+                setTimeout(() => navigate('/'), 2000); // Redirect to homepage
+            } else if (response.data === "Error: Incorrect password.") {
+                setMessage("Incorrect password. Please try again.");
+            } else if (response.data === "Error: Email not found.") {
+                setMessage("Email not found. Please check your email or register.");
+            } else if (response.data === "Error: Unable to login.") {
+                setMessage("An error occurred while trying to log in. Please try again later.");
+            } else {
+                setMessage("Login failed. Please check your credentials and try again.");
+            }
         } catch (error) {
+            console.error('Login error:', error);
             setMessage(error.response?.data?.message || "Login failed. Please check your credentials and try again.");
         } finally {
             setIsSubmitting(false);

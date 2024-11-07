@@ -29,9 +29,20 @@ function Register() {
         setMessage('');
 
         try {
-            const { data } = await API.post('/auth/register', formData);
-            setMessage(data.message || "User registered successfully!");
-            setTimeout(() => navigate('/login'), 2000); // Redirect to login after 2 seconds
+            const response = await API.post('/auth/register', formData);
+            console.log('Register response:', response);
+
+            // Handle each specific response message from the backend
+            if (response.data === "User registered successfully!") {
+                setMessage("User registered successfully!");
+                setTimeout(() => navigate('/login'), 2000); // Redirect to login after 2 seconds
+            } else if (response.data === "Error: Email or nickname already exists.") {
+                setMessage("Email or nickname already exists. Please use a different one.");
+            } else if (response.data === "Error: Unable to register user.") {
+                setMessage("An error occurred while trying to register. Please try again later.");
+            } else {
+                setMessage("Registration failed. Please try again.");
+            }
         } catch (error) {
             console.error("Error:", error);
             setMessage(error.response?.data?.message || "Registration failed. Please try again.");
