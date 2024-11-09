@@ -17,6 +17,11 @@ function Friends() {
 
     // Send Friend Request
     const handleAddFriend = async () => {
+        if (friendEmail === userEmail) {
+            showMessage("You cannot add yourself as a friend.");
+            return; // Exit the function early
+        }
+
         setLoading(true);
         try {
             const { data } = await API.post('/friends/add', { userEmail, friendEmail });
